@@ -1,0 +1,68 @@
+class GameState:
+    def __init__(self, score, level, lives):
+        self.score = score
+        self.level = level
+        self.lives = lives
+
+    def add_to_score(self, amount):
+        # Add the amount to the current score
+        self.score += amount
+
+    def next_level(self):
+        # Increase the level by 1
+        self.level += 1
+
+    def add_or_subtract_lives(self, amount):
+        # Add or subtract lives, but make sure lives don't go below 0
+        self.lives += amount
+        if self.lives < 0:
+            self.lives = 0
+
+def save_game(game_state, file_name):
+    # Save the game state to a file in the format "score,level,lives"
+    try:
+        with open(file_name, "w") as file:
+            data = "{},{},{}".format(game_state.score, game_state.level, game_state.lives)
+            file.write(data)
+            print("Game saved successfully.")
+            print("Saved data:", data)
+    except Exception as e:
+        print("Error saving game:", e)
+
+def load_game(file_name):
+    # Load the game state from a file, or start a new game if file is missing/empty
+    try:
+        with open(file_name, "r") as file:
+            data = file.read().strip()
+            if data == "":
+                print("Save file is empty. Starting new game.")
+                return GameState(0, 1, 3)
+            score_str, level_str, lives_str = data.split(",")
+            loaded_game = GameState(int(score_str), int(level_str), int(lives_str))
+            print("Game loaded successfully.")
+            return loaded_game
+    except FileNotFoundError:
+        print("Save file not found. Starting new game.")
+        return GameState(0, 1, 3)
+    except Exception as e:
+        print("Error loading game:", e)
+        return GameState(0, 1, 3)
+
+
+if __name__ == "__main__":
+    # Create a new game state
+    game = GameState(150, 2, 3)
+
+    # Change the state
+    game.add_to_score(50)        # Now score is 200
+    game.next_level()            # Now level is 3
+    game.add_or_subtract_lives(-1)  # Now lives is 2
+
+    # Save the game
+    save_game(game, "savefile.txt")
+
+    # Load the game again
+    loaded_game = load_game("savefile.txt")
+    print("Loaded Score:", loaded_game.score)
+    print("Loaded Level:", loaded_game.level)
+    print("Loaded Lives:", loaded_game.lives)
